@@ -113,8 +113,7 @@ func MachineSets(in *MachineSetInput) ([]*machineapi.MachineSet, error) {
 			return nil, errors.Wrap(err, "failed to create provider")
 		}
 
-		// TODO: use const for label
-		machineSpecLabels["machine.openshift.io/os-image-stream-machineset"] = in.OSImageStream
+		machineSpecLabels["machine.openshift.io/os-image-stream"] = in.OSImageStream
 
 		name := fmt.Sprintf("%s-%s-%s", in.ClusterID, in.Pool.Name, az)
 		spec := machineapi.MachineSpec{
@@ -150,11 +149,11 @@ func MachineSets(in *MachineSetInput) ([]*machineapi.MachineSet, error) {
 				Template: machineapi.MachineTemplateSpec{
 					ObjectMeta: machineapi.ObjectMeta{
 						Labels: map[string]string{
-							"machine.openshift.io/cluster-api-machineset":      name,
-							"machine.openshift.io/cluster-api-cluster":         in.ClusterID,
-							"machine.openshift.io/cluster-api-machine-role":    in.Role,
-							"machine.openshift.io/cluster-api-machine-type":    in.Role,
-							"machine.openshift.io/os-image-stream-ms-template": in.OSImageStream,
+							"machine.openshift.io/cluster-api-machineset":   name,
+							"machine.openshift.io/cluster-api-cluster":      in.ClusterID,
+							"machine.openshift.io/cluster-api-machine-role": in.Role,
+							"machine.openshift.io/cluster-api-machine-type": in.Role,
+							"machine.openshift.io/os-image-stream":          in.OSImageStream,
 						},
 					},
 					Spec: spec,

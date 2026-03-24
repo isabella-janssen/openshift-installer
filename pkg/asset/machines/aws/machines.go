@@ -98,9 +98,7 @@ func Machines(clusterID string, region string, subnets aws.SubnetsByZone, pool *
 					"machine.openshift.io/cluster-api-cluster":      clusterID,
 					"machine.openshift.io/cluster-api-machine-role": role,
 					"machine.openshift.io/cluster-api-machine-type": role,
-					// TODO: understand if the label needs to be set here or if just setting it in
-					// the MachineSet's Spec.Template.ObjectMeta.Labels is enough.
-					// "machine.openshift.io/os-image-stream":          osImageStream,
+					"machine.openshift.io/os-image-stream":          osImageStream,
 				},
 			},
 			Spec: machineapi.MachineSpec{
@@ -180,8 +178,7 @@ func Machines(clusterID string, region string, subnets aws.SubnetsByZone, pool *
 							"machine.openshift.io/cluster-api-cluster":      clusterID,
 							"machine.openshift.io/cluster-api-machine-role": role,
 							"machine.openshift.io/cluster-api-machine-type": role,
-							// TODO: see if we need these labels on CPMSs
-							// "machine.openshift.io/os-image-stream":          osImageStream,
+							"machine.openshift.io/os-image-stream":          osImageStream,
 						},
 					},
 					Spec: machineapi.MachineSpec{
