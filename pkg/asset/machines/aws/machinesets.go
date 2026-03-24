@@ -11,6 +11,7 @@ import (
 
 	machineapi "github.com/openshift/api/machine/v1beta1"
 	icaws "github.com/openshift/installer/pkg/asset/installconfig/aws"
+	"github.com/openshift/installer/pkg/asset/machines"
 	"github.com/openshift/installer/pkg/types"
 	"github.com/openshift/installer/pkg/types/aws"
 )
@@ -113,7 +114,7 @@ func MachineSets(in *MachineSetInput) ([]*machineapi.MachineSet, error) {
 			return nil, errors.Wrap(err, "failed to create provider")
 		}
 
-		machineSpecLabels["machine.openshift.io/os-image-stream"] = in.OSImageStream
+		machineSpecLabels[machines.OSImageStreamLabel] = in.OSImageStream
 
 		name := fmt.Sprintf("%s-%s-%s", in.ClusterID, in.Pool.Name, az)
 		spec := machineapi.MachineSpec{
@@ -153,7 +154,7 @@ func MachineSets(in *MachineSetInput) ([]*machineapi.MachineSet, error) {
 							"machine.openshift.io/cluster-api-cluster":      in.ClusterID,
 							"machine.openshift.io/cluster-api-machine-role": in.Role,
 							"machine.openshift.io/cluster-api-machine-type": in.Role,
-							"machine.openshift.io/os-image-stream":          in.OSImageStream,
+							machines.OSImageStreamLabel:                     in.OSImageStream,
 						},
 					},
 					Spec: spec,

@@ -17,6 +17,7 @@ import (
 	machinev1 "github.com/openshift/api/machine/v1"
 	machineapi "github.com/openshift/api/machine/v1beta1"
 	"github.com/openshift/installer/pkg/asset/installconfig/aws"
+	"github.com/openshift/installer/pkg/asset/machines"
 	"github.com/openshift/installer/pkg/types"
 	awstypes "github.com/openshift/installer/pkg/types/aws"
 )
@@ -98,7 +99,7 @@ func Machines(clusterID string, region string, subnets aws.SubnetsByZone, pool *
 					"machine.openshift.io/cluster-api-cluster":      clusterID,
 					"machine.openshift.io/cluster-api-machine-role": role,
 					"machine.openshift.io/cluster-api-machine-type": role,
-					"machine.openshift.io/os-image-stream":          osImageStream,
+					machines.OSImageStreamLabel:                     osImageStream,
 				},
 			},
 			Spec: machineapi.MachineSpec{
@@ -178,7 +179,7 @@ func Machines(clusterID string, region string, subnets aws.SubnetsByZone, pool *
 							"machine.openshift.io/cluster-api-cluster":      clusterID,
 							"machine.openshift.io/cluster-api-machine-role": role,
 							"machine.openshift.io/cluster-api-machine-type": role,
-							"machine.openshift.io/os-image-stream":          osImageStream,
+							machines.OSImageStreamLabel:                     osImageStream,
 						},
 					},
 					Spec: machineapi.MachineSpec{
