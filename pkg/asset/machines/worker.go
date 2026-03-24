@@ -554,6 +554,7 @@ func (w *Worker) Generate(ctx context.Context, dependencies asset.Parents) error
 				Role:                     pool.Name,
 				UserDataSecret:           workerUserDataSecretName,
 				Hosts:                    dHosts,
+				OSImageStream:            GetOSImageStream(ic),
 			})
 			if err != nil {
 				return errors.Wrap(err, "failed to create worker machine objects")
