@@ -22,7 +22,7 @@ const (
 	VsphereScsiByPath = "/dev/disk/by-path/pci-0000:03:00.0-scsi-0:0:%d:0"
 
 	// OSImageStreamLabel is the label key used to identify the OS image stream for a machine.
-	OSImageStreamLabel = "machine.openshift.io/os-image-stream"
+	OSImageStreamLabel = "machine.openshift.io/os-image-stream-util"
 )
 
 // NodeDiskSetup determines the path per disk type, and per platform and role, runs ForDiskSetup.

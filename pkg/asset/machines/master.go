@@ -268,7 +268,7 @@ func (m *Master) Generate(ctx context.Context, dependencies asset.Parents) error
 			masterUserDataSecretName,
 			installConfig.Config.Platform.AWS.UserTags,
 			awstypes.IsPublicOnlySubnetsEnabled(),
-			// GetOSImageStream(ic),
+			GetOSImageStream(ic),
 		)
 		if err != nil {
 			return errors.Wrap(err, "failed to create master machine objects")

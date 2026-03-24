@@ -41,8 +41,7 @@ type machineProviderInput struct {
 }
 
 // Machines returns a list of machines for a machinepool.
-// func Machines(clusterID string, region string, subnets aws.SubnetsByZone, pool *types.MachinePool, role, userDataSecret string, userTags map[string]string, publicSubnet bool, osImageStream string) ([]machineapi.Machine, *machinev1.ControlPlaneMachineSet, error) {
-func Machines(clusterID string, region string, subnets aws.SubnetsByZone, pool *types.MachinePool, role, userDataSecret string, userTags map[string]string, publicSubnet bool) ([]machineapi.Machine, *machinev1.ControlPlaneMachineSet, error) {
+func Machines(clusterID string, region string, subnets aws.SubnetsByZone, pool *types.MachinePool, role, userDataSecret string, userTags map[string]string, publicSubnet bool, osImageStream string) ([]machineapi.Machine, *machinev1.ControlPlaneMachineSet, error) {
 	if poolPlatform := pool.Platform.Name(); poolPlatform != awstypes.Name {
 		return nil, nil, fmt.Errorf("non-AWS machine-pool: %q", poolPlatform)
 	}
