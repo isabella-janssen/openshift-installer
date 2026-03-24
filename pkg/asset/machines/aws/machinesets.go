@@ -11,6 +11,7 @@ import (
 
 	machineapi "github.com/openshift/api/machine/v1beta1"
 	icaws "github.com/openshift/installer/pkg/asset/installconfig/aws"
+	"github.com/openshift/installer/pkg/asset/machines"
 	"github.com/openshift/installer/pkg/types"
 	"github.com/openshift/installer/pkg/types/aws"
 )
@@ -26,6 +27,7 @@ type MachineSetInput struct {
 	Role                     string
 	UserDataSecret           string
 	Hosts                    map[string]icaws.Host
+	OSImageStream            string
 }
 
 // MachineSets returns a list of machinesets for a machinepool.
@@ -48,7 +50,7 @@ func MachineSets(in *MachineSetInput) ([]*machineapi.MachineSet, error) {
 			replicas++
 		}
 
-		nodeLabels := make(map[string]string, 3)
+		machineSpecLabels := make(map[string]string, 3)
 		nodeTaints := []corev1.Taint{}
 		instanceType := mpool.InstanceType
 		publicSubnet := in.PublicSubnet
@@ -71,7 +73,7 @@ func MachineSets(in *MachineSetInput) ([]*machineapi.MachineSet, error) {
 			if zone.PreferredInstanceType != "" {
 				instanceType = zone.PreferredInstanceType
 			}
-			nodeLabels = map[string]string{
+			machineSpecLabels = map[string]string{
 				"node-role.kubernetes.io/edge":          "",
 				"machine.openshift.io/zone-type":        zone.Type,
 				"machine.openshift.io/zone-group":       zone.GroupName,
@@ -112,13 +114,15 @@ func MachineSets(in *MachineSetInput) ([]*machineapi.MachineSet, error) {
 			return nil, errors.Wrap(err, "failed to create provider")
 		}
 
+		machineSpecLabels[machines.OSImageStreamLabel] = in.OSImageStream
+
 		name := fmt.Sprintf("%s-%s-%s", in.ClusterID, in.Pool.Name, az)
 		spec := machineapi.MachineSpec{
 			ProviderSpec: machineapi.ProviderSpec{
 				Value: &runtime.RawExtension{Object: provider},
 			},
 			ObjectMeta: machineapi.ObjectMeta{
-				Labels: nodeLabels,
+				Labels: machineSpecLabels,
 			},
 			Taints: nodeTaints,
 		}
@@ -150,6 +154,7 @@ func MachineSets(in *MachineSetInput) ([]*machineapi.MachineSet, error) {
 							"machine.openshift.io/cluster-api-cluster":      in.ClusterID,
 							"machine.openshift.io/cluster-api-machine-role": in.Role,
 							"machine.openshift.io/cluster-api-machine-type": in.Role,
+							machines.OSImageStreamLabel:                     in.OSImageStream,
 						},
 					},
 					Spec: spec,
