@@ -1789,7 +1789,7 @@ func validateOSImageStream(config *types.InstallConfig) field.ErrorList {
 		errs = append(errs, field.Forbidden(field.NewPath("osImageStream"), "OS Image Streams are only supported on OCP clusters using RHCOS"))
 	}
 
-	supportedValues := []string{string(types.OSImageStreamRHCOS9), string(types.OSImageStreamRHCOS10)}
+	supportedValues := []string{string(types.OSImageStreamRHCOS9), string(types.OSImageStreamRHCOS10), string(types.OSImageStreamRHCOS10Nvidia)}
 	if config.OSImageStream != "" && !slices.Contains(supportedValues, string(config.OSImageStream)) {
 		errs = append(errs,
 			field.Forbidden(

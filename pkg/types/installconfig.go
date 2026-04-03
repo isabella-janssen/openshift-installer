@@ -666,7 +666,7 @@ func (c *InstallConfig) PublicIngress() bool {
 }
 
 // OSImageStream represents the name of an OS Image Stream to use in a pool.
-// +kubebuilder:validation:Enum=rhel-9;rhel-10
+// +kubebuilder:validation:Enum=rhel-9;rhel-10;rhel-10-nvidia
 type OSImageStream string
 
 const (
@@ -674,6 +674,8 @@ const (
 	OSImageStreamRHCOS9 OSImageStream = "rhel-9"
 	// OSImageStreamRHCOS10 represents the RHEL 10 OS Image Stream.
 	OSImageStreamRHCOS10 OSImageStream = "rhel-10"
+	// OSImageStreamRHCOS10Nvidia represents the RHEL for Nvidia OS Image Stream based on RHEL 10.
+	OSImageStreamRHCOS10Nvidia OSImageStream = "rhel-10-nvidia"
 
 	// OSStreamLabelKey represents the label key used to note the OS image stream on MachineSet
 	// and Machine resources.
@@ -684,4 +686,5 @@ const (
 var OSImageStreamValues = []OSImageStream{
 	OSImageStreamRHCOS9,
 	OSImageStreamRHCOS10,
+	OSImageStreamRHCOS10Nvidia,
 }

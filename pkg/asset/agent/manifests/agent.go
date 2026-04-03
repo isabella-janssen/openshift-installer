@@ -16,6 +16,7 @@ import (
 	"github.com/openshift/installer/pkg/asset"
 	"github.com/openshift/installer/pkg/asset/agent/workflow"
 	workflowreport "github.com/openshift/installer/pkg/asset/agent/workflow/report"
+	"github.com/openshift/installer/pkg/asset/manifests"
 )
 
 const (
@@ -55,6 +56,7 @@ func (m *AgentManifests) Dependencies() []asset.Asset {
 		&AgentClusterInstall{},
 		&ClusterDeployment{},
 		&ClusterImageSet{},
+		&manifests.OSImageStream{},
 	}
 }
 
@@ -71,6 +73,7 @@ func (m *AgentManifests) Generate(ctx context.Context, dependencies asset.Parent
 		&AgentClusterInstall{},
 		&ClusterDeployment{},
 		&ClusterImageSet{},
+		&manifests.OSImageStream{},
 	} {
 		dependencies.Get(a)
 
@@ -93,6 +96,9 @@ func (m *AgentManifests) Generate(ctx context.Context, dependencies asset.Parent
 			m.ClusterDeployment = v.Config
 		case *ClusterImageSet:
 			m.ClusterImageSet = v.Config
+		case *manifests.OSImageStream:
+			// OSImageStream is optional, only generated when install-config is provided
+			// No need to store in AgentManifests struct
 		}
 
 		m.FileList = append(m.FileList, a.Files()...)

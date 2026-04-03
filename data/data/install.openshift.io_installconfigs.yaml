@@ -5077,6 +5077,7 @@ spec:
             enum:
             - rhel-9
             - rhel-10
+            - rhel-10-nvidia
             type: string
           platform:
             description: |-

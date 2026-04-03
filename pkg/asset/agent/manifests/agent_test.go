@@ -13,6 +13,7 @@ import (
 	"github.com/openshift/assisted-service/models"
 	hivev1 "github.com/openshift/hive/apis/hive/v1"
 	"github.com/openshift/installer/pkg/asset"
+	"github.com/openshift/installer/pkg/asset/manifests"
 )
 
 func TestAgentManifests_Generate(t *testing.T) {
@@ -59,6 +60,7 @@ func TestAgentManifests_Generate(t *testing.T) {
 				&AgentClusterInstall{Config: fakeAgentClusterInstall},
 				&ClusterDeployment{Config: fakeClusterDeployment},
 				&ClusterImageSet{Config: fakeClusterImageSet},
+				&manifests.OSImageStream{},
 			},
 			ExpectedPullSecret:          fakeSecret,
 			ExpectedInfraEnv:            fakeInfraEnv,
@@ -93,6 +95,7 @@ func TestAgentManifests_Generate(t *testing.T) {
 				&AgentClusterInstall{},
 				&ClusterDeployment{},
 				&ClusterImageSet{},
+				&manifests.OSImageStream{},
 			},
 			ExpectedError: "invalid agent configuration: spec.nmStateConfigLabelSelector.matchLabels: Required value: infraEnv and fake-nmState NMState Config labels do not match. Expected: map[missing-label:missing-label] Found: map[]",
 		},

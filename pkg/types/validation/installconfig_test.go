@@ -3027,9 +3027,8 @@ func TestValidateInstallConfig(t *testing.T) {
 			}(),
 			expectedError: "OS Image Streams are only supported on OCP clusters using RHCOS",
 			restoreFnFactory: func(config *types.InstallConfig) func() {
-				old := types.SCOS
 				return func() {
-					types.SCOS = old
+					types.SCOS = false
 				}
 			},
 		},
@@ -3041,7 +3040,16 @@ func TestValidateInstallConfig(t *testing.T) {
 				c.OSImageStream = "invalid"
 				return c
 			}(),
-			expectedError: "Unsupported OS Image Stream. Supported values are: rhel-9, rhel-10",
+			expectedError: "Unsupported OS Image Stream. Supported values are: rhel-9, rhel-10, rhel-10-nvidia",
+		},
+		{
+			name: "valid rhel-10-nvidia OSImageStream",
+			installConfig: func() *types.InstallConfig {
+				c := validInstallConfig()
+				c.FeatureSet = configv1.TechPreviewNoUpgrade
+				c.OSImageStream = "rhel-10-nvidia"
+				return c
+			}(),
 		},
 	}
 	for _, tc := range cases {
