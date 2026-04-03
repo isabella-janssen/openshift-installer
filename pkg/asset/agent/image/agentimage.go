@@ -14,6 +14,7 @@ import (
 	"github.com/openshift/assisted-image-service/pkg/isoeditor"
 	hiveext "github.com/openshift/assisted-service/api/hiveextension/v1beta1"
 	"github.com/openshift/installer/pkg/asset"
+	"github.com/openshift/installer/pkg/asset/agent"
 	"github.com/openshift/installer/pkg/asset/agent/gencrypto"
 	"github.com/openshift/installer/pkg/asset/agent/joiner"
 	"github.com/openshift/installer/pkg/asset/agent/manifests"
@@ -53,6 +54,7 @@ func (a *AgentImage) Dependencies() []asset.Asset {
 		&manifests.AgentManifests{},
 		&BaseIso{},
 		&gencrypto.AuthConfig{},
+		&agent.OptionalInstallConfig{},
 	}
 }
 
@@ -63,7 +65,8 @@ func (a *AgentImage) Generate(ctx context.Context, dependencies asset.Parents) e
 	agentArtifacts := &AgentArtifacts{}
 	agentManifests := &manifests.AgentManifests{}
 	baseIso := &BaseIso{}
-	dependencies.Get(agentArtifacts, agentManifests, baseIso, agentWorkflow, clusterInfo)
+	installConfig := &agent.OptionalInstallConfig{}
+	dependencies.Get(agentArtifacts, agentManifests, baseIso, agentWorkflow, clusterInfo, installConfig)
 
 	if err := workflowreport.GetReport(ctx).Stage(workflow.StageGenerateISO); err != nil {
 		return err
@@ -106,7 +109,7 @@ func (a *AgentImage) Generate(ctx context.Context, dependencies asset.Parents) e
 			logrus.Debugf("Using custom rootfs URL: %s", a.rootFSURL)
 		} else {
 			// Default to the URL from the RHCOS streams file
-			defaultRootFSURL, err := baseIso.getRootFSURL(ctx, a.cpuArch, agentWorkflow, clusterInfo)
+			defaultRootFSURL, err := baseIso.getRootFSURL(ctx, a.cpuArch, agentWorkflow, clusterInfo, installConfig)
 			if err != nil {
 				return err
 			}

@@ -11,8 +11,11 @@ import (
 	"github.com/openshift/api/features"
 	mcfgv1alpha "github.com/openshift/api/machineconfiguration/v1alpha1"
 	"github.com/openshift/installer/pkg/asset"
+	"github.com/openshift/installer/pkg/asset/agent"
+	"github.com/openshift/installer/pkg/asset/agent/workflow"
 	"github.com/openshift/installer/pkg/asset/installconfig"
 	"github.com/openshift/installer/pkg/rhcos"
+	"github.com/openshift/installer/pkg/types"
 )
 
 var osImageStreamFileName = path.Join(openshiftManifestDir, "99_osimagestream.yaml")
@@ -39,19 +42,42 @@ func (*OSImageStream) Dependencies() []asset.Asset {
 
 // Generate generates the OSImageStream CRD.
 func (f *OSImageStream) Generate(_ context.Context, dependencies asset.Parents) error {
+	// Try IPI install config first
 	installConfig := &installconfig.InstallConfig{}
 	dependencies.Get(installConfig)
+
+	// Then try agent optional install config
+	agentInstallConfig := &agent.OptionalInstallConfig{}
+	agentWorkflow := &workflow.AgentWorkflow{}
+	dependencies.Get(agentInstallConfig, agentWorkflow)
+
+	var config *types.InstallConfig
+
+	// Determine which install config to use
+	if installConfig.Config != nil {
+		// IPI workflow
+		config = installConfig.Config
+	} else if agentInstallConfig.Supplied && agentInstallConfig.Config != nil {
+		// Agent workflow - only generate for install workflow, not add-nodes
+		if agentWorkflow.Workflow != workflow.AgentWorkflowTypeInstall {
+			return nil
+		}
+		config = agentInstallConfig.Config
+	} else {
+		// No install config available
+		return nil
+	}
 
 	// If one of the following are true the OSImageStream CR is not generated
 	// 1. The feature is not enabled
 	// 2. The target is CentOS Stream CoreOS
-	if ic := installConfig.Config; !ic.Enabled(features.FeatureGateOSStreams) || ic.IsSCOS() {
+	if !config.Enabled(features.FeatureGateOSStreams) || config.IsSCOS() {
 		// FG disabled or not OCP
 		return nil
 	}
 
 	// If no stream was set just report the default one for the current version
-	stream := installConfig.Config.OSImageStream
+	stream := config.OSImageStream
 	if stream == "" {
 		stream = rhcos.DefaultOSImageStream
 	}
