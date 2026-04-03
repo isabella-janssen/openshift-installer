@@ -115,6 +115,7 @@ func (a *Ignition) Dependencies() []asset.Asset {
 		&mirror.CaBundle{},
 		&gencrypto.AuthConfig{},
 		&common.InfraEnvID{},
+		&agentcommon.OptionalInstallConfig{},
 	}
 }
 
@@ -128,7 +129,8 @@ func (a *Ignition) Generate(ctx context.Context, dependencies asset.Parents) err
 	fencingCredentials := &agentconfig.FencingCredentials{}
 	authConfig := &gencrypto.AuthConfig{}
 	infraEnvAsset := &common.InfraEnvID{}
-	dependencies.Get(agentManifests, agentConfigAsset, agentHostsAsset, extraManifests, fencingCredentials, authConfig, agentWorkflow, infraEnvAsset)
+	installConfig := &agentcommon.OptionalInstallConfig{}
+	dependencies.Get(agentManifests, agentConfigAsset, agentHostsAsset, extraManifests, fencingCredentials, authConfig, agentWorkflow, infraEnvAsset, installConfig)
 	clusterInfo := &joiner.ClusterInfo{}
 
 	if err := workflowreport.GetReport(ctx).Stage(workflow.StageIgnition); err != nil {
@@ -269,7 +271,7 @@ func (a *Ignition) Generate(ctx context.Context, dependencies asset.Parents) err
 	infraEnvID := infraEnvAsset.ID
 	logrus.Debug("Generated random infra-env id ", infraEnvID)
 
-	osImage, err := getOSImagesInfo(ctx, archName, openshiftVersion, customStreamGetter(agentWorkflow, clusterInfo))
+	osImage, err := getOSImagesInfo(ctx, archName, openshiftVersion, customStreamGetter(agentWorkflow, clusterInfo, installConfig))
 	if err != nil {
 		return err
 	}

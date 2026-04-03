@@ -16,6 +16,7 @@ import (
 	"github.com/openshift/installer/pkg/asset/agent/mirror"
 	"github.com/openshift/installer/pkg/asset/agent/workflow"
 	"github.com/openshift/installer/pkg/asset/rhcos"
+	corerhcos "github.com/openshift/installer/pkg/rhcos"
 	"github.com/openshift/installer/pkg/types"
 )
 
@@ -37,9 +38,9 @@ func (i *BaseIso) Name() string {
 }
 
 // Fetch RootFS URL using the rhcos.json.
-func (i *BaseIso) getRootFSURL(ctx context.Context, archName string, agentWorkflow *workflow.AgentWorkflow, clusterInfo *joiner.ClusterInfo) (string, error) {
+func (i *BaseIso) getRootFSURL(ctx context.Context, archName string, agentWorkflow *workflow.AgentWorkflow, clusterInfo *joiner.ClusterInfo, installConfig *agent.OptionalInstallConfig) (string, error) {
 	metal, err := rhcos.GetMetalArtifact(
-		ctx, archName, customStreamGetter(agentWorkflow, clusterInfo))
+		ctx, archName, customStreamGetter(agentWorkflow, clusterInfo, installConfig))
 	if err != nil {
 		return "", err
 	}
@@ -69,11 +70,12 @@ func (i *BaseIso) Generate(ctx context.Context, dependencies asset.Parents) erro
 	registriesConf := &mirror.RegistriesConf{}
 	agentWorkflow := &workflow.AgentWorkflow{}
 	clusterInfo := &joiner.ClusterInfo{}
-	dependencies.Get(agentManifests, registriesConf, agentWorkflow, clusterInfo)
+	installConfig := &agent.OptionalInstallConfig{}
+	dependencies.Get(agentManifests, registriesConf, agentWorkflow, clusterInfo, installConfig)
 
 	baseIsoFileName, err := rhcos.NewBaseISOFetcher(
 		i.getRelease(agentManifests, registriesConf.MirrorConfig),
-		customStreamGetter(agentWorkflow, clusterInfo)).GetBaseISOFilename(ctx, agentManifests.InfraEnv.Spec.CpuArchitecture)
+		customStreamGetter(agentWorkflow, clusterInfo, installConfig)).GetBaseISOFilename(ctx, agentManifests.InfraEnv.Spec.CpuArchitecture)
 
 	if err == nil {
 		logrus.Debugf("Using base ISO image %s", baseIsoFileName)
@@ -85,12 +87,21 @@ func (i *BaseIso) Generate(ctx context.Context, dependencies asset.Parents) erro
 	return errors.Wrap(err, "failed to get base ISO image")
 }
 
-func customStreamGetter(agentWorkflow *workflow.AgentWorkflow, clusterInfo *joiner.ClusterInfo) rhcos.CoreOSBuildFetcher {
+func customStreamGetter(agentWorkflow *workflow.AgentWorkflow, clusterInfo *joiner.ClusterInfo, installConfig *agent.OptionalInstallConfig) rhcos.CoreOSBuildFetcher {
 	if agentWorkflow.Workflow == workflow.AgentWorkflowTypeAddNodes {
 		return func(ctx context.Context) (*stream.Stream, error) {
 			return clusterInfo.OSImage, nil
 		}
 	}
+
+	// For install workflow, use osImageStream from install-config if supplied
+	if installConfig.Supplied && installConfig.Config != nil {
+		osImageStream := installConfig.Config.OSImageStream
+		return func(ctx context.Context) (*stream.Stream, error) {
+			return corerhcos.FetchCoreOSBuild(ctx, osImageStream)
+		}
+	}
+
 	return nil
 }
 
