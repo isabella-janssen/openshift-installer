@@ -3016,6 +3016,16 @@ func TestValidateInstallConfig(t *testing.T) {
 			expectedError: "the Ingress capability is required",
 		},
 		{
+			name: "invalid OSImageStream value",
+			installConfig: func() *types.InstallConfig {
+				c := validInstallConfig()
+				c.FeatureSet = configv1.TechPreviewNoUpgrade
+				c.OSImageStream = "invalid"
+				return c
+			}(),
+			expectedError: "Unsupported OS Image Stream. Supported values are: rhel-9, rhel-10",
+		},
+		{
 			name: "invalid OSImageStream set",
 			installConfig: func() *types.InstallConfig {
 				c := validInstallConfig()
@@ -3031,25 +3041,6 @@ func TestValidateInstallConfig(t *testing.T) {
 					types.SCOS = false
 				}
 			},
-		},
-		{
-			name: "invalid OSImageStream set",
-			installConfig: func() *types.InstallConfig {
-				c := validInstallConfig()
-				c.FeatureSet = configv1.TechPreviewNoUpgrade
-				c.OSImageStream = "invalid"
-				return c
-			}(),
-			expectedError: "Unsupported OS Image Stream. Supported values are: rhel-9, rhel-10, rhel-10-nvidia",
-		},
-		{
-			name: "valid rhel-10-nvidia OSImageStream",
-			installConfig: func() *types.InstallConfig {
-				c := validInstallConfig()
-				c.FeatureSet = configv1.TechPreviewNoUpgrade
-				c.OSImageStream = "rhel-10-nvidia"
-				return c
-			}(),
 		},
 	}
 	for _, tc := range cases {
