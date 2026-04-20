@@ -131,6 +131,8 @@ type agentClusterInstallInstallConfigOverrides struct {
 	FeatureSet configv1.FeatureSet `json:"featureSet,omitempty"`
 	// Allow override of FeatureGates
 	FeatureGates []string `json:"featureGates,omitempty"`
+	// OSImageStream is the OS Image Stream to be used for all machines in the cluster
+	OSImageStream types.OSImageStream `json:"osImageStream,omitempty"`
 }
 
 var _ asset.WritableAsset = (*AgentClusterInstall)(nil)
@@ -260,6 +262,11 @@ func (a *AgentClusterInstall) Generate(_ context.Context, dependencies asset.Par
 		if len(installConfig.Config.FeatureGates) > 0 {
 			icOverridden = true
 			icOverrides.FeatureGates = installConfig.Config.FeatureGates
+		}
+
+		if installConfig.Config.OSImageStream != "" {
+			icOverridden = true
+			icOverrides.OSImageStream = installConfig.Config.OSImageStream
 		}
 
 		if installConfig.Config.Proxy != nil {

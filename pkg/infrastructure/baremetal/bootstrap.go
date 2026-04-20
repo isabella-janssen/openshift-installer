@@ -178,7 +178,8 @@ func getLiveISO(config baremetalConfig, arch string) (string, error) {
 			config.PullSecret,
 			config.MirrorConfig,
 		),
-		nil)
+		nil,
+		"")
 	return fetcher.GetBaseISOFilename(context.Background(), arch)
 }
 

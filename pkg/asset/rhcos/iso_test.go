@@ -96,7 +96,8 @@ func TestBaseIso(t *testing.T) {
 							},
 						},
 					}, nil
-				})
+				},
+				"")
 			filename, err := fetcher.GetBaseISOFilename(context.Background(), "")
 
 			if tc.expectedError == "" {

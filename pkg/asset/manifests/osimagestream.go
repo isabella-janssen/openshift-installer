@@ -54,16 +54,17 @@ func (f *OSImageStream) Generate(_ context.Context, dependencies asset.Parents) 
 	var config *types.InstallConfig
 
 	// Determine which install config to use
-	if installConfig.Config != nil {
+	switch {
+	case installConfig.Config != nil:
 		// IPI workflow
 		config = installConfig.Config
-	} else if agentInstallConfig.Supplied && agentInstallConfig.Config != nil {
+	case agentInstallConfig.Supplied && agentInstallConfig.Config != nil:
 		// Agent workflow - only generate for install workflow, not add-nodes
 		if agentWorkflow.Workflow != workflow.AgentWorkflowTypeInstall {
 			return nil
 		}
 		config = agentInstallConfig.Config
-	} else {
+	default:
 		// No install config available
 		return nil
 	}
